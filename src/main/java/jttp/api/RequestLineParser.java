@@ -7,6 +7,5 @@ public interface RequestLineParser extends Reader {
 
     RequestLine line();
 
-    RequestLineParser refresh();
 
 }

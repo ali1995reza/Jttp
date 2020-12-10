@@ -2,17 +2,17 @@ package jttp.api;
 
 public class RequestLine {
 
-    private final String method;
+    private final HttpMethod method;
     private final String route;
     private final HttpVersion version;
 
-    public RequestLine(String method, String route, HttpVersion version) {
+    public RequestLine(HttpMethod method, String route, HttpVersion version) {
         this.method = method;
         this.route = route;
         this.version = version;
     }
 
-    public String method() {
+    public HttpMethod method() {
         return method;
     }
 
@@ -22,5 +22,14 @@ public class RequestLine {
 
     public String route() {
         return route;
+    }
+
+    @Override
+    public String toString() {
+        return "RequestLine{" +
+                "method='" + method + '\'' +
+                ", route='" + route + '\'' +
+                ", version=" + version +
+                '}';
     }
 }

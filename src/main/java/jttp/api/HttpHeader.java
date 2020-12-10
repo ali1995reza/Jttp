@@ -18,4 +18,13 @@ public class HttpHeader {
     public String value() {
         return value;
     }
+
+
+    @Override
+    public String toString() {
+        return "HttpHeader{" +
+                "name='" + name + '\'' +
+                ", value='" + value + '\'' +
+                '}';
+    }
 }

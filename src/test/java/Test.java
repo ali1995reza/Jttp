@@ -1,4 +1,5 @@
-import jttp.standard.ElementParser;
+import jttp.api.HttpHeader;
+import jttp.standard.*;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -8,20 +9,24 @@ public class Test {
 
     public static void main(String[] args) throws Exception
     {
-        ElementParser parser = new ElementParser(ByteBuffer.allocate(200));
+        SRequestLineParser parser = new SRequestLineParser(ByteBuffer.allocate(200));
+        parser.setTolerant(TolerantConfig.TOLERANT_ENABLE);
 
-        String line = "GET / HTTP/1.1\r\n";
-        System.out.println(line.getBytes(StandardCharsets.US_ASCII).length);
+        String line = "GET       / HTTP/1.1\r\n";
         int read = parser.read(line.getBytes(StandardCharsets.US_ASCII));
+        SHeaderParser headerParser = new SHeaderParser(ByteBuffer.allocate(200));
+        String header = "Content-Length: HelloWorld\r\n";
 
-        System.out.println(read);
+        headerParser.read(header.getBytes());
 
         if(parser.isElementParsed())
         {
-            byte[] data = new byte[parser.buffer().remaining()];
-            parser.buffer().get(data);
+            System.out.println(parser.line());
+        }
 
-            System.out.println(new String(data));
+        if(headerParser.isElementParsed())
+        {
+            System.out.println(headerParser.header());
         }
     }
 }
