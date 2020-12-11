@@ -48,4 +48,14 @@ public class Assertion {
     {
         ifTrue(cond , IF_TRUE_DEF_MSG);
     }
+
+    public final static <T extends Throwable> void throwIf(boolean cond , T throwable) throws T {
+        if(cond)
+            throw throwable;
+    }
+
+    public final static <T extends Throwable> void throwIfNot(boolean cond , T throwable) throws T {
+        if(!cond)
+            throw throwable;
+    }
 }

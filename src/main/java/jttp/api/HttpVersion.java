@@ -4,7 +4,7 @@ import jttp.api.exception.HttpParseException;
 
 public enum  HttpVersion {
 
-    HTTP_1_1("HTTP/1.1") , HTTP_2("HTTP/2");
+    HTTP_1_1("HTTP/1.1") , HTTP_2("HTTP/2.0");
 
     private final String name;
 
@@ -13,6 +13,11 @@ public enum  HttpVersion {
     }
 
     public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
         return name;
     }
 

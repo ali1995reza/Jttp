@@ -1,8 +1,6 @@
 package jttp.api;
 
-import java.nio.ByteBuffer;
-
-public interface RequestLineParser extends Reader {
+public interface RequestLineParser extends ElementReader {
 
 
     RequestLine line();

@@ -1,6 +1,6 @@
 package jttp.api;
 
-public interface HeaderParser extends Reader {
+public interface HeaderParser extends ElementReader {
 
     HttpHeader header();
 }

@@ -16,4 +16,7 @@ public class StaticExceptions {
     public final static HttpParseException MAXIMUM_TOLERANT_BYTES_REACHED =
             new HeaderParseException("Maximum tolerant redundant bytes reached");
 
+    public final static HttpParseException INVALID_CHARACTER =
+            new HeaderParseException("Invalid character , character values must valid in ASCII");
+
 }

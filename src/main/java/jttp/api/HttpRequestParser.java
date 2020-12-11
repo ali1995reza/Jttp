@@ -1,7 +1,7 @@
 package jttp.api;
 
 
-public interface HttpRequestParser extends Reader {
+public interface HttpRequestParser extends ElementReader {
 
 
 

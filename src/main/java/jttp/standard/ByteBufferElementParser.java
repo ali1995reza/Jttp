@@ -2,7 +2,7 @@ package jttp.standard;
 
 import java.nio.ByteBuffer;
 
-public class ByteBufferElementParser extends ElementReader{
+public class ByteBufferElementParser extends SElementReader {
 
     private final ByteBuffer buffer;
 
@@ -18,7 +18,7 @@ public class ByteBufferElementParser extends ElementReader{
 
 
     @Override
-    public void onElementParsed() {
+    public void onElementParsed(boolean isCRLF) {
         buffer.flip();
     }
 

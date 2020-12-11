@@ -4,13 +4,12 @@ import jttp.api.HeaderParser;
 import jttp.api.HttpHeader;
 import jttp.api.exception.HeaderParseException;
 import jttp.api.exception.HttpParseException;
-import jttp.api.exception.RequestLineParseException;
 
 import java.nio.ByteBuffer;
 
 import static jttp.standard.HttpProtocolConstant.*;
 
-public class SHeaderParser extends ElementReader implements HeaderParser {
+public class SHeaderParser extends SElementReader implements HeaderParser {
 
     private final ByteBuffer buffer;
     private String headerName;
@@ -28,7 +27,7 @@ public class SHeaderParser extends ElementReader implements HeaderParser {
         Assertion.ifTrue(++parts>3);
         buffer.flip();
         if(!buffer.hasRemaining())
-            throw new HeaderParseException("a empty part in request line has been detected");
+            throw new HeaderParseException("a empty part in header has been detected");
 
         String part = new String(buffer.array() , 0 , buffer.remaining());
         buffer.clear();
@@ -50,11 +49,11 @@ public class SHeaderParser extends ElementReader implements HeaderParser {
 
     @Override
     void onRead(byte b) throws HttpParseException {
-        if(b==DOUBLE_DOT)
+        if(b==DOUBLE_DOT && parts==0)
         {
             newPart();
             Assertion.ifTrue(parts>=2);
-        }else if(b==SPACE && buffer.position()==0){
+        }else if(b== SP && buffer.position()==0){
         }else {
             buffer.put(b);
         }
@@ -62,18 +61,23 @@ public class SHeaderParser extends ElementReader implements HeaderParser {
 
 
     @Override
-    void onElementParsed() throws HttpParseException {
+    void onElementParsed(boolean isCRLF) throws HttpParseException {
+
+        if(isCRLF)
+            return;
+
         newPart();
 
         Assertion.ifTrue(parts!=2);
     }
 
     @Override
-    public ElementReader refresh() {
+    public SElementReader refresh() {
         parts = 0;
         header = null;
         headerName = null;
         headerValue = null;
+        buffer.clear();
         return super.refresh();
     }
 

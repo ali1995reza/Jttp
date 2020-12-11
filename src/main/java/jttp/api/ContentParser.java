@@ -1,10 +1,10 @@
 package jttp.api;
 
-public interface ContentParser extends Reader {
+public interface ContentParser {
 
     ContentParser withTransferEncoding(TransferEncoding transferEncoding);
 
     ContentParser fixedSize(long l);
 
-    Content lastPart();
+    ContentByteType read(byte b);
 }

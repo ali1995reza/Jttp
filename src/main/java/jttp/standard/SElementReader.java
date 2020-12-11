@@ -1,6 +1,6 @@
 package jttp.standard;
 
-import jttp.api.Reader;
+import jttp.api.ElementReader;
 import jttp.api.exception.HttpParseException;
 
 import java.nio.ByteBuffer;
@@ -8,25 +8,26 @@ import java.nio.ByteBuffer;
 import static jttp.standard.HttpProtocolConstant.*;
 import static jttp.standard.StaticExceptions.*;
 
-public abstract class ElementReader implements Reader {
+public abstract class SElementReader implements ElementReader {
 
     private boolean crDetected = false;
     private boolean elementParsed = false;
-    private boolean spaceDetected = true; //start of line is true and ok !
+    private boolean spaceDetected = false; //start of line is true and ok !
+    private boolean readAnyOtherBytesExpectCRLF = false;
     private int totalRedundantBytes = 0;
     protected TolerantConfig tolerant;
     private HttpParseException lastException;
 
-    public ElementReader(TolerantConfig tolerant) {
+    public SElementReader(TolerantConfig tolerant) {
         setTolerant(tolerant);
     }
 
-    public ElementReader()
+    public SElementReader()
     {
         this(TolerantConfig.TOLERANT_ENABLE);
     }
 
-    public ElementReader setTolerant(TolerantConfig tolerant) {
+    public SElementReader setTolerant(TolerantConfig tolerant) {
         Assertion.ifNull(tolerant);
         this.tolerant = tolerant;
         return this;
@@ -39,6 +40,15 @@ public abstract class ElementReader implements Reader {
             throw MAXIMUM_TOLERANT_BYTES_REACHED;
     }
 
+
+    private final void validate(byte b) throws HttpParseException
+    {
+        if(isCHAR(b))
+            return;
+
+        throw INVALID_CHARACTER;
+    }
+
     @Override
     public int read(byte[] buffer) throws HttpParseException {
         Assertion.ifNull(buffer);
@@ -49,12 +59,13 @@ public abstract class ElementReader implements Reader {
             int i = 0;
             for (; i < buffer.length; i++) {
                 byte data = buffer[i];
+                validate(data);
                 if (data == CR) {
                     crDetected = true;
                 } else if (data == LF) {
                     i++;
                     if(crDetected || tolerant.isEnable()) {
-                        onElementParsed();
+                        onElementParsed(!readAnyOtherBytesExpectCRLF);
                         elementParsed = true;
                         break;
                     }else {
@@ -62,6 +73,8 @@ public abstract class ElementReader implements Reader {
                     }
 
                 } else {
+                    if(!readAnyOtherBytesExpectCRLF)
+                        readAnyOtherBytesExpectCRLF = true;
                     if(crDetected)
                     {
                         throw CR_IN_LINE_EXCEPTION;
@@ -74,7 +87,7 @@ public abstract class ElementReader implements Reader {
                             increaseTolerantBytes();
                         else {
                             spaceDetected = true;
-                            onRead(SPACE);
+                            onRead(SP);
                         }
                     }else {
                         if(spaceDetected)
@@ -106,12 +119,13 @@ public abstract class ElementReader implements Reader {
 
             for (; i < offset + length; i++) {
                 byte data = buffer[i];
+                validate(data);
                 if (data == CR) {
                     crDetected = true;
                 } else if (data == LF) {
                     i++;
                     if(crDetected || tolerant.isEnable()) {
-                        onElementParsed();
+                        onElementParsed(!readAnyOtherBytesExpectCRLF);
                         elementParsed = true;
                         break;
                     }else {
@@ -119,6 +133,8 @@ public abstract class ElementReader implements Reader {
                     }
 
                 } else {
+                    if(!readAnyOtherBytesExpectCRLF)
+                        readAnyOtherBytesExpectCRLF = true;
                     if (crDetected) {
                         throw CR_IN_LINE_EXCEPTION;
                     }
@@ -129,7 +145,7 @@ public abstract class ElementReader implements Reader {
                             increaseTolerantBytes();
                         else {
                             spaceDetected = true;
-                            onRead(SPACE);
+                            onRead(SP);
                         }
                     }else {
                         if(spaceDetected)
@@ -160,12 +176,13 @@ public abstract class ElementReader implements Reader {
 
             while (buffer.hasRemaining()) {
                 byte data = buffer.get();
+                validate(data);
                 i++;
                 if (data == CR) {
                     crDetected = true;
                 } else if (data == LF) {
                     if(crDetected || tolerant.isEnable()) {
-                        onElementParsed();
+                        onElementParsed(!readAnyOtherBytesExpectCRLF);
                         elementParsed = true;
                         break;
                     }else {
@@ -173,6 +190,9 @@ public abstract class ElementReader implements Reader {
                     }
 
                 } else {
+                    if(!readAnyOtherBytesExpectCRLF)
+                        readAnyOtherBytesExpectCRLF = true;
+
                     if (crDetected) {
                         throw CR_IN_LINE_EXCEPTION;
                     }
@@ -183,7 +203,7 @@ public abstract class ElementReader implements Reader {
                             increaseTolerantBytes();
                         else {
                             spaceDetected = true;
-                            onRead(SPACE);
+                            onRead(SP);
                         }
                     }else {
                         if(spaceDetected)
@@ -211,21 +231,28 @@ public abstract class ElementReader implements Reader {
             throw lastException;
     }
 
+    @Override
     public boolean isElementParsed() {
         return elementParsed;
     }
 
-    public ElementReader refresh()
+    @Override
+    public boolean isElementCRLF() {
+        return elementParsed && !readAnyOtherBytesExpectCRLF;
+    }
+
+    public SElementReader refresh()
     {
         elementParsed = false;
         crDetected = false;
         spaceDetected = true;
         lastException = null;
+        readAnyOtherBytesExpectCRLF = false;
         totalRedundantBytes = 0;
 
         return this;
     }
 
     abstract void onRead(byte b) throws HttpParseException;
-    abstract void onElementParsed() throws HttpParseException;
+    abstract void onElementParsed(boolean isCRLF) throws HttpParseException;
 }

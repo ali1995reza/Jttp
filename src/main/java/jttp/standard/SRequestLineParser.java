@@ -8,11 +8,10 @@ import jttp.api.exception.HttpParseException;
 import jttp.api.exception.RequestLineParseException;
 
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 
 import static jttp.standard.HttpProtocolConstant.*;
 
-public class SRequestLineParser extends ElementReader implements RequestLineParser {
+public class SRequestLineParser extends SElementReader implements RequestLineParser {
 
     private final ByteBuffer buffer;
     private HttpMethod method;
@@ -27,7 +26,7 @@ public class SRequestLineParser extends ElementReader implements RequestLinePars
 
     @Override
     void onRead(byte b) throws HttpParseException {
-        if(b==SPACE)
+        if(b== SP)
         {
             newPart();
 
@@ -38,7 +37,8 @@ public class SRequestLineParser extends ElementReader implements RequestLinePars
     }
 
     @Override
-    void onElementParsed() throws HttpParseException {
+    void onElementParsed(boolean isCRLF) throws HttpParseException {
+        //skip isCRLF
         newPart();
         Assertion.ifTrue(parts!=3);
     }
@@ -68,12 +68,13 @@ public class SRequestLineParser extends ElementReader implements RequestLinePars
     }
 
     @Override
-    public ElementReader refresh() {
+    public SElementReader refresh() {
         method = null;
         route = null;
         version = null;
         line = null;
         parts = 0;
+        buffer.clear();
         return super.refresh();
     }
 
