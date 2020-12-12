@@ -27,6 +27,9 @@ public class Assertion {
     private final static String IF_TRUE_DEF_MSG =
             "condition is true";
 
+    private final static String IF_FALSE_DEF_MSG =
+            "condition is false";
+
     public final static void ifNull(Object o , String msg)
     {
         if(o==null)
@@ -47,6 +50,17 @@ public class Assertion {
     public final static void ifTrue(boolean cond)
     {
         ifTrue(cond , IF_TRUE_DEF_MSG);
+    }
+
+    public final static void ifFalse(boolean cond , String msg)
+    {
+        if(!cond)
+            throw new AssertionException(msg);
+    }
+
+    public final static void ifFalse(boolean cond)
+    {
+        ifFalse(cond , IF_FALSE_DEF_MSG);
     }
 
     public final static <T extends Throwable> void throwIf(boolean cond , T throwable) throws T {

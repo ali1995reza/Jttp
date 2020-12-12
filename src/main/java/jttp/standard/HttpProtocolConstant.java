@@ -2,6 +2,61 @@ package jttp.standard;
 
 public class HttpProtocolConstant {
 
+
+    private static byte[] hexValueMap; //0 will skip !
+
+    private final static void initMap()
+    {
+        byte[] map = new byte[128];
+
+        for(int i=0;i<map.length;i++)
+        {
+
+            if(i=='0')
+                map[i] = 0;
+            else if(i=='1')
+                map[i] = 1;
+            else if(i=='2')
+                map[i] = 2;
+            else if(i=='3')
+                map[i] = 3;
+            else if(i=='4')
+                map[i] = 4;
+            else if(i=='5')
+                map[i] = 5;
+            else if(i=='6')
+                map[i] = 6;
+            else if(i=='7')
+                map[i] = 7;
+            else if(i=='8')
+                map[i] = 8;
+            else if(i=='9')
+                map[i] = 9;
+            else if(i=='a' || i=='A')
+                map[i] = 10;
+            else if(i=='b' || i=='B')
+                map[i] = 11;
+            else if(i=='c' || i=='C')
+                map[i] = 12;
+            else if(i=='d' || i=='D')
+                map[i] = 13;
+            else if(i=='e' || i=='E')
+                map[i] = 14;
+            else if(i=='d' || i=='F')
+                map[i] = 15;
+            else
+                map[i] = -1;
+
+        }
+
+        hexValueMap = map;
+    }
+
+    static {
+        initMap();
+    }
+
+
     public final static byte CR = '\r'; //13
     public final static byte LF = '\n'; //10
     public final static byte SP = ' '; //32
@@ -59,6 +114,19 @@ public class HttpProtocolConstant {
                (b>=START_HEX_LO && b<=START_HEX_LO) ||
                (b>=START_DIGIT && b<=END_DIGIT);
     }
+
+
+    public final static boolean isToken(byte b)
+    {
+        //b>32 sp
+        return b>32 && b!=DEL;
+    }
+
+    public final static byte hexValueAsDecimal(byte b)
+    {
+        return hexValueMap[b];
+    }
+
 
 
 

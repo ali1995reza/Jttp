@@ -12,7 +12,7 @@ public abstract class SElementReader implements ElementReader {
 
     private boolean crDetected = false;
     private boolean elementParsed = false;
-    private boolean spaceDetected = false; //start of line is true and ok !
+    private boolean spaceDetected = false;
     private boolean readAnyOtherBytesExpectCRLF = false;
     private int totalRedundantBytes = 0;
     protected TolerantConfig tolerant;

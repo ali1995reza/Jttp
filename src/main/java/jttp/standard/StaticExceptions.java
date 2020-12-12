@@ -18,5 +18,4 @@ public class StaticExceptions {
 
     public final static HttpParseException INVALID_CHARACTER =
             new HeaderParseException("Invalid character , character values must valid in ASCII");
-
 }
