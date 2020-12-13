@@ -10,9 +10,10 @@ public class TestRequest {
 
     public final static void main(String[] args) throws Exception
     {
-        String header = "Content-Length: 200\r\n";
+        String header = "Content-Length: 200 OK IM NOT SHIT RIGHT NOW IDIOTS\r\n";
         SHeaderByteParser parser = new SHeaderByteParser();
         byte[] data = header.getBytes(Charset.forName("ASCII"));
+        ByteBuffer byteBuffer = ByteBuffer.wrap(data);
 
         parser.setHeaderNameListener(new ElementByteParseEventListener() {
             @Override
@@ -22,7 +23,7 @@ public class TestRequest {
 
             @Override
             public void onElementData(ByteBuffer buffer, boolean completed) {
-
+                System.out.println(new String(buffer.array() , buffer.position() , buffer.remaining()));
             }
 
             @Override
@@ -37,16 +38,16 @@ public class TestRequest {
 
             @Override
             public void onElementData(ByteBuffer buffer, boolean completed) {
-
+                System.out.println(new String(buffer.array() , buffer.position() , buffer.remaining()));
             }
 
             @Override
             public void refresh() {
 
             }
-        }).read(data);
+        }).read(byteBuffer);
 
         parser.refresh();
-        parser.read(data);
+        parser.read(byteBuffer);
     }
 }

@@ -19,8 +19,10 @@ public class SHeaderByteParser extends ExceptionAdaptedElementParser implements 
     private TolerantConfig tolerant = TolerantConfig.TOLERANT_ENABLE;
 
     private boolean readingHeaderName = true;
-    private boolean firstByteOfHeaderValue = true;
+    private boolean firstByte = true;
     private boolean crDetected = false;
+
+    private int lenOffset , offsetOffset = 0;
 
 
 
@@ -36,13 +38,13 @@ public class SHeaderByteParser extends ExceptionAdaptedElementParser implements 
 
     @Override
     public ByteHeaderParser setHeaderNameListener(ElementByteParseEventListener listener) {
-        headerName = listener;
+        headerName = listener==null?ElementByteParseEventListener.EMPTY:listener;
         return this;
     }
 
     @Override
     public ByteHeaderParser setHeaderValueListener(ElementByteParseEventListener listener) {
-        headerValue = listener;
+        headerValue = listener==null?ElementByteParseEventListener.EMPTY:listener;
         return this;
     }
 
@@ -50,26 +52,49 @@ public class SHeaderByteParser extends ExceptionAdaptedElementParser implements 
     {
         validateHeaderName(b);
 
+
         return b==DOUBLE_DOT;
     }
 
     private boolean readHeaderValueBytes(byte b) throws HttpParseException
     {
 
-        if(b==CR){
+        if(b==LF){
+
+
+            if(crDetected) {
+                --lenOffset;
+                return true;
+            }
+
+            throw LF_WITHOUT_CR_EXCEPTION;
+
+
+
+        }else if(b==CR)
+        {
             if(crDetected)
                 throw new HeaderParseException("multiple CR detected");
 
             crDetected = true;
 
-        }else if(b==LF)
-        {
-            if(crDetected)
-                return true;
+            --lenOffset;
 
-            throw LF_WITHOUT_CR_EXCEPTION;
-        }else if(isCTL(b))
+        }else if(isCTL(b)) {
             throw new HeaderParseException("CTL byte in header value");
+        }else{
+
+            if(crDetected)
+                throw new HeaderParseException("CR in header value");
+
+            if(firstByte && spaceCharacter(b))
+            {
+                ++offsetOffset;
+            }else {
+                firstByte = false;
+            }
+
+        }
 
         return false;
     }
@@ -81,7 +106,6 @@ public class SHeaderByteParser extends ExceptionAdaptedElementParser implements 
         int i = offset;
         int chunkOffset = offset;
         final int len = offset+length;
-        int lenOffset = 0;
         for(;i<len;i++)
         {
             byte b = buffer[i];
@@ -90,42 +114,35 @@ public class SHeaderByteParser extends ExceptionAdaptedElementParser implements 
             {
                 if(readHeaderBytes(b))
                 {
+
                     readingHeaderName = false;
                     headerName.onElementData(
-                            buffer , chunkOffset , i-chunkOffset , true
+                            buffer , chunkOffset+offsetOffset , i-chunkOffset+lenOffset , true
                     );
-                    chunkOffset+=i-chunkOffset+1;
+                    chunkOffset+=i-chunkOffset;
+
+                    offsetOffset = 1;
+                    lenOffset = 0;
                 }else if(i-1==len)
                 {
                     //so its chunk but not ened
                     headerName.onElementData(
-                            buffer , chunkOffset , i-chunkOffset , false
+                            buffer , chunkOffset+offsetOffset , i-chunkOffset+lenOffset , false
                     );
                 }
             }else
             {
 
-                if(spaceCharacter(b) && firstByteOfHeaderValue)
-                {
-                    chunkOffset++;
-                }else {
-                    if(firstByteOfHeaderValue)
-                        firstByteOfHeaderValue = false;
-
-                    if(b==CR || b==LF)
-                        lenOffset++;
-
-                }
-
                 if(readHeaderValueBytes(b)){
-                    System.out.println(lenOffset);
+
                     headerValue.onElementData(
-                            buffer , chunkOffset , i-chunkOffset-lenOffset , true
+                            buffer , chunkOffset+offsetOffset , i-chunkOffset+lenOffset , true
                     );
                     setElementParsed();
                 }else if(i-1==len){
+
                     headerValue.onElementData(
-                            buffer , chunkOffset , i-chunkOffset-lenOffset , false
+                            buffer , chunkOffset+offsetOffset , i-chunkOffset+lenOffset , false
                     );
                 }
 
@@ -133,18 +150,84 @@ public class SHeaderByteParser extends ExceptionAdaptedElementParser implements 
 
         }
 
+        offsetOffset = 0;
+        lenOffset = 0;
+
         return i-offset;
     }
 
     @Override
     int doRead(ByteBuffer buffer) throws HttpParseException {
-        return 0;
+
+        int offset = buffer.position();
+        int i = offset;
+        int chunkOffset = offset;
+        final int len = offset + buffer.remaining();
+        for (; i < len; i++) {
+            byte b = buffer.get(i);
+
+            if (readingHeaderName) {
+                if (readHeaderBytes(b)) {
+
+                    readingHeaderName = false;
+
+                    ByteBuffer byteBuffer = buffer.duplicate();
+                    byteBuffer.position(chunkOffset + offsetOffset);
+                    byteBuffer.limit(byteBuffer.position()+i - chunkOffset + lenOffset);
+
+                    headerName.onElementData(
+                            byteBuffer, true
+                    );
+                    chunkOffset += i - chunkOffset;
+
+                    offsetOffset = 1;
+                    lenOffset = 0;
+                } else if (i - 1 == len) {
+                    //so its chunk but not ened
+                    ByteBuffer byteBuffer = buffer.duplicate();
+                    byteBuffer.position(chunkOffset + offsetOffset);
+                    byteBuffer.limit(byteBuffer.position()+i - chunkOffset + lenOffset);
+
+                    headerName.onElementData(
+                            byteBuffer, false
+                    );
+                }
+            } else {
+
+                if (readHeaderValueBytes(b)) {
+
+                    ByteBuffer byteBuffer = buffer.duplicate();
+                    byteBuffer.position(chunkOffset + offsetOffset);
+                    byteBuffer.limit(byteBuffer.position()+i - chunkOffset + lenOffset);
+
+                    headerValue.onElementData(
+                            byteBuffer, true
+                    );
+                    setElementParsed();
+                } else if (i - 1 == len) {
+
+                    ByteBuffer byteBuffer = buffer.duplicate();
+                    byteBuffer.position(chunkOffset + offsetOffset);
+                    byteBuffer.limit(byteBuffer.position()+i - chunkOffset + lenOffset);
+
+                    headerValue.onElementData(
+                            byteBuffer, false
+                    );
+                }
+
+            }
+        }
+
+
+        return i - offset;
     }
 
     @Override
     void doRefresh() {
         readingHeaderName = true;
-        firstByteOfHeaderValue = true;
+        firstByte = true;
         crDetected = false;
+        offsetOffset = 0;
+        lenOffset = 0;
     }
 }
