@@ -1,4 +1,9 @@
+import jttp.api.ByteRequestLineParser;
 import jttp.api.ElementByteParseEventListener;
+import jttp.api.RequestLineParser;
+import jttp.standard.ByteBufferAggregatorElementParser;
+import jttp.standard.PrintString;
+import jttp.standard.SByteRequestLineParser;
 import jttp.standard.SHeaderByteParser;
 import sun.net.www.http.HttpClient;
 
@@ -10,44 +15,28 @@ public class TestRequest {
 
     public final static void main(String[] args) throws Exception
     {
-        String header = "Content-Length: 200 OK IM NOT SHIT RIGHT NOW IDIOTS\r\n";
-        SHeaderByteParser parser = new SHeaderByteParser();
-        byte[] data = header.getBytes(Charset.forName("ASCII"));
-        ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        ByteRequestLineParser parser =
+                new SByteRequestLineParser()
+                .setMethodListener(
+                        new ByteBufferAggregatorElementParser(200)
+                        .setOnCompleted(PrintString.UTF_8)
+                ).setRouteListener(
+                        new ByteBufferAggregatorElementParser(200)
+                        .setOnCompleted(PrintString.UTF_8)
+                ).setVersionListener(
+                        new ByteBufferAggregatorElementParser(200)
+                        .setOnCompleted(PrintString.UTF_8)
+                );
 
-        parser.setHeaderNameListener(new ElementByteParseEventListener() {
-            @Override
-            public void onElementData(byte[] data, int offset, int len, boolean completed) {
-                System.out.println(new String(data , offset , len));
-            }
+        String req = "GET / http/1.1\r\n";
+        byte[] reqBytes = req.getBytes();
 
-            @Override
-            public void onElementData(ByteBuffer buffer, boolean completed) {
-                System.out.println(new String(buffer.array() , buffer.position() , buffer.remaining()));
-            }
+        for(int i=0;i<reqBytes.length;i++)
+        {
+            System.out.println("I : "+i);
+            parser.read(reqBytes , i , 1);
+        }
 
-            @Override
-            public void refresh() {
 
-            }
-        }).setHeaderValueListener(new ElementByteParseEventListener() {
-            @Override
-            public void onElementData(byte[] data, int offset, int len, boolean completed) {
-                System.out.println(new String(data , offset , len));
-            }
-
-            @Override
-            public void onElementData(ByteBuffer buffer, boolean completed) {
-                System.out.println(new String(buffer.array() , buffer.position() , buffer.remaining()));
-            }
-
-            @Override
-            public void refresh() {
-
-            }
-        }).read(byteBuffer);
-
-        parser.refresh();
-        parser.read(byteBuffer);
     }
 }

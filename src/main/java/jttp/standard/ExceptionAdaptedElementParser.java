@@ -89,7 +89,7 @@ public abstract class ExceptionAdaptedElementParser implements ByteParser {
         return isElementParsed;
     }
 
-    void setElementParsed()
+    final void setElementParsed()
     {
         isElementParsed = true;
     }
