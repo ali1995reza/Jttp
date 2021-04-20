@@ -111,7 +111,7 @@ public class HttpProtocolConstant {
     public final static boolean isHex(byte b)
     {
         return (b>=START_HEX_UP && b<=END_HEX_UP) ||
-               (b>= START_HEX_LOW && b<= START_HEX_LOW) ||
+               (b>= START_HEX_LOW && b<= END_HEX_LOW) ||
                (b>=START_DIGIT && b<=END_DIGIT);
     }
 
