@@ -63,7 +63,7 @@ public class HttpProtocolConstant {
     public final static byte HT = '\t';
     public final static byte DEL = 127;
     public final static byte QUOTE_MARK = '\"';
-    public final static byte DOUBLE_DOT = (byte)':';
+    public final static byte DOUBLE_DOT = ':';
 
     public final static String CRLF = "\r\n";
 
@@ -111,7 +111,7 @@ public class HttpProtocolConstant {
     public final static boolean isHex(byte b)
     {
         return (b>=START_HEX_UP && b<=END_HEX_UP) ||
-               (b>=START_HEX_LO && b<=START_HEX_LO) ||
+               (b>= START_HEX_LOW && b<= START_HEX_LOW) ||
                (b>=START_DIGIT && b<=END_DIGIT);
     }
 
@@ -150,6 +150,6 @@ public class HttpProtocolConstant {
 
     private final static byte START_HEX_UP = 'A';
     private final static byte END_HEX_UP = 'F';
-    private final static byte START_HEX_LO = 'a';
-    private final static byte END_HEX_LO = 'f';
+    private final static byte START_HEX_LOW = 'a';
+    private final static byte END_HEX_LOW = 'f';
 }
