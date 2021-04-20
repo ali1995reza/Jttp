@@ -95,12 +95,12 @@ public class HttpProtocolConstant {
 
     public final static boolean isUPALPHA(byte b)
     {
-        return b>=START_UPALPHA && b<=END_UPALPHA;
+        return b>= START_ALPHA_UP && b<= END_ALPHA_UP;
     }
 
     public final static boolean isLOALPHA(byte b)
     {
-        return b>=START_LOALPHA && b<=END_LOALPHA;
+        return b>= START_ALPHA_LOW && b<= END_ALPHA_LOW;
     }
 
     public final static boolean isALPHA(byte b)
@@ -141,11 +141,11 @@ public class HttpProtocolConstant {
     private final static byte START_CTL = 0;
     private final static byte END_CTL = 31;
 
-    private final static byte START_UPALPHA = 'A';
-    private final static byte END_UPALPHA = 'Z';
+    private final static byte START_ALPHA_UP = 'A';
+    private final static byte END_ALPHA_UP = 'Z';
 
-    private final static byte START_LOALPHA = 'a';
-    private final static byte END_LOALPHA = 'z';
+    private final static byte START_ALPHA_LOW = 'a';
+    private final static byte END_ALPHA_LOW = 'z';
 
 
     private final static byte START_HEX_UP = 'A';
