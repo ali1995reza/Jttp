@@ -1,15 +1,7 @@
 import jttp.api.ByteRequestLineParser;
-import jttp.api.ElementByteParseEventListener;
-import jttp.api.RequestLineParser;
 import jttp.standard.ByteBufferAggregatorElementParser;
 import jttp.standard.PrintString;
 import jttp.standard.SByteRequestLineParser;
-import jttp.standard.SHeaderByteParser;
-import sun.net.www.http.HttpClient;
-
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
 public class TestRequest {
 
