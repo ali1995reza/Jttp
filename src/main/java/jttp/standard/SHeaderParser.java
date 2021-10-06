@@ -7,7 +7,8 @@ import jttp.api.exception.HttpParseException;
 
 import java.nio.ByteBuffer;
 
-import static jttp.standard.HttpProtocolConstant.*;
+import static jttp.standard.HttpProtocolConstant.DOUBLE_DOT;
+import static jttp.standard.HttpProtocolConstant.SP;
 
 public class SHeaderParser extends SElementReader implements HeaderParser {
 
@@ -22,24 +23,21 @@ public class SHeaderParser extends SElementReader implements HeaderParser {
     }
 
 
-    private final void newPart() throws HttpParseException
-    {
-        Assertion.ifTrue(++parts>3);
+    private final void newPart() throws HttpParseException {
+        Assertion.ifTrue(++parts > 3);
         buffer.flip();
-        if(!buffer.hasRemaining())
+        if (!buffer.hasRemaining())
             throw new HeaderParseException("a empty part in header has been detected");
 
-        String part = new String(buffer.array() , 0 , buffer.remaining());
+        String part = new String(buffer.array(), 0, buffer.remaining());
         buffer.clear();
 
-        if(parts==1)
-        {
+        if (parts == 1) {
             headerName = part;
-        }else if(parts==2)
-        {
+        } else if (parts == 2) {
             headerValue = part;
             header = new HttpHeader(
-                    headerName ,
+                    headerName,
                     headerValue
             );
         }
@@ -49,12 +47,11 @@ public class SHeaderParser extends SElementReader implements HeaderParser {
 
     @Override
     void onRead(byte b) throws HttpParseException {
-        if(b==DOUBLE_DOT && parts==0)
-        {
+        if (b == DOUBLE_DOT && parts == 0) {
             newPart();
-            Assertion.ifTrue(parts>=2);
-        }else if(b== SP && buffer.position()==0){
-        }else {
+            Assertion.ifTrue(parts >= 2);
+        } else if (b == SP && buffer.position() == 0) {
+        } else {
             buffer.put(b);
         }
     }
@@ -63,12 +60,12 @@ public class SHeaderParser extends SElementReader implements HeaderParser {
     @Override
     void onElementParsed(boolean isCRLF) throws HttpParseException {
 
-        if(isCRLF)
+        if (isCRLF)
             return;
 
         newPart();
 
-        Assertion.ifTrue(parts!=2);
+        Assertion.ifTrue(parts != 2);
     }
 
     @Override

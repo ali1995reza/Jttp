@@ -1,6 +1,6 @@
 package jttp.api;
 
-public enum  ContentByteType {
+public enum ContentByteType {
 
-    PROTOCOL , CONTENT;
+    PROTOCOL, CONTENT;
 }

@@ -4,8 +4,6 @@ import jttp.api.ContentByteType;
 import jttp.api.ContentParser;
 import jttp.api.TransferEncoding;
 
-import static jttp.standard.HttpProtocolConstant.*;
-
 public class SContentParser implements ContentParser {
 
     private TransferEncoding encoding;

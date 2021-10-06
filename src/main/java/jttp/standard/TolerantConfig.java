@@ -3,10 +3,10 @@ package jttp.standard;
 public class TolerantConfig {
 
     public final static TolerantConfig TOLERANT_ENABLE =
-            new TolerantConfig(100 , true);
+            new TolerantConfig(100, true);
 
     public final static TolerantConfig TOLERANT_DISABLE =
-            new TolerantConfig(0 , false);
+            new TolerantConfig(0, false);
 
     private final int totalTolerantBytes;
     private final boolean enable;

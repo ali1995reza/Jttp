@@ -2,18 +2,15 @@ package jttp.api.exception;
 
 public class RequestLineParseException extends HttpParseException {
 
-    public RequestLineParseException(Throwable e)
-    {
+    public RequestLineParseException(Throwable e) {
         super(e);
     }
 
-    public RequestLineParseException(String e)
-    {
+    public RequestLineParseException(String e) {
         super(e);
     }
 
-    public RequestLineParseException()
-    {
+    public RequestLineParseException() {
         super();
     }
 

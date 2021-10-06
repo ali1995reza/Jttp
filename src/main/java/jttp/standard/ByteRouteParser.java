@@ -6,7 +6,8 @@ import jttp.api.exception.RequestLineParseException;
 
 import java.nio.ByteBuffer;
 
-import static jttp.standard.HttpProtocolConstant.*;
+import static jttp.standard.HttpProtocolConstant.isCTL;
+import static jttp.standard.HttpProtocolConstant.spaceCharacter;
 
 public class ByteRouteParser extends ExceptionAdaptedElementParser {
 
@@ -15,17 +16,16 @@ public class ByteRouteParser extends ExceptionAdaptedElementParser {
 
 
     public ByteRouteParser setRoute(ElementByteParseEventListener route) {
-        this.route = route==null?ElementByteParseEventListener.EMPTY:route;
+        this.route = route == null ? ElementByteParseEventListener.EMPTY : route;
         return this;
     }
 
-    private boolean validate(byte b) throws RequestLineParseException
-    {
+    private boolean validate(byte b) throws RequestLineParseException {
         boolean space = spaceCharacter(b);
-        if(isCTL(b) && !space)
+        if (isCTL(b) && !space)
             throw new RequestLineParseException("CTL byte in route");
 
-        if(space) {
+        if (space) {
             setElementParsed();
             return true;
         }
@@ -36,22 +36,20 @@ public class ByteRouteParser extends ExceptionAdaptedElementParser {
 
     @Override
     int doRead(byte[] buffer, int offset, int length) throws HttpParseException {
-        int i=offset;
-        for(;i<offset+length;i++)
-        {
-            if(validate(buffer[i])) {
-                route.onElementData(buffer , offset , i-offset , true);
+        int i = offset;
+        for (; i < offset + length; i++) {
+            if (validate(buffer[i])) {
+                route.onElementData(buffer, offset, i - offset, true);
                 i++;
                 break;
             }
         }
 
-        if(!isElementParsed())
-        {
-            route.onElementData(buffer , offset , i-offset , false);
+        if (!isElementParsed()) {
+            route.onElementData(buffer, offset, i - offset, false);
         }
 
-        return i-offset;
+        return i - offset;
     }
 
     @Override

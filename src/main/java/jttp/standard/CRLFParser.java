@@ -1,6 +1,5 @@
 package jttp.standard;
 
-import jttp.api.ElementReader;
 import jttp.api.exception.HttpParseException;
 
 public class CRLFParser extends SElementReader {
@@ -12,7 +11,7 @@ public class CRLFParser extends SElementReader {
 
     @Override
     void onElementParsed(boolean isCRLF) throws HttpParseException {
-        if(!isCRLF)
+        if (!isCRLF)
             throw new HttpParseException("it seems its not just CRLF");
     }
 }

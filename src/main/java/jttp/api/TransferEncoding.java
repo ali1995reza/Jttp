@@ -1,6 +1,6 @@
 package jttp.api;
 
-public enum  TransferEncoding {
+public enum TransferEncoding {
 
-    FIXED_LENGTH , CHUNKED
+    FIXED_LENGTH, CHUNKED
 }

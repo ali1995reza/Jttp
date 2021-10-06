@@ -11,29 +11,14 @@ public abstract class ExceptionAdaptedElementParser implements ByteParser {
     private boolean isElementParsed = false;
 
 
-    private void throwLastException() throws HttpParseException{
-        if(exception!=null)
+    private void throwLastException() throws HttpParseException {
+        if (exception != null)
             throw exception;
     }
 
     @Override
     public final int read(byte[] buffer) throws HttpParseException {
-
-        throwLastException();
-
-        if(isElementParsed())return 0;
-
-        try{
-            return doRead(buffer , 0 , buffer.length);
-        }catch (HttpParseException e)
-        {
-            exception = e;
-            throw exception;
-        }catch (Throwable e)
-        {
-            exception = new HttpParseException(e);
-            throw exception;
-        }
+        return read(buffer, 0, buffer.length);
     }
 
     @Override
@@ -41,16 +26,14 @@ public abstract class ExceptionAdaptedElementParser implements ByteParser {
 
         throwLastException();
 
-        if(isElementParsed())return 0;
+        if (isElementParsed()) return 0;
 
-        try{
-            return doRead(buffer , offset , length);
-        }catch (HttpParseException e)
-        {
+        try {
+            return doRead(buffer, offset, length);
+        } catch (HttpParseException e) {
             exception = e;
             throw exception;
-        }catch (Throwable e)
-        {
+        } catch (Throwable e) {
             exception = new HttpParseException(e);
             throw exception;
         }
@@ -61,16 +44,14 @@ public abstract class ExceptionAdaptedElementParser implements ByteParser {
 
         throwLastException();
 
-        if(isElementParsed())return 0;
+        if (isElementParsed()) return 0;
 
-        try{
+        try {
             return doRead(buffer);
-        }catch (HttpParseException e)
-        {
+        } catch (HttpParseException e) {
             exception = e;
             throw exception;
-        }catch (Throwable e)
-        {
+        } catch (Throwable e) {
             exception = new HttpParseException(e);
             throw exception;
         }
@@ -89,12 +70,13 @@ public abstract class ExceptionAdaptedElementParser implements ByteParser {
         return isElementParsed;
     }
 
-    final void setElementParsed()
-    {
+    final void setElementParsed() {
         isElementParsed = true;
     }
 
-    abstract int doRead(byte[] buffer ,int offset , int length) throws HttpParseException;
-    abstract int doRead(ByteBuffer buffer)throws HttpParseException;
+    abstract int doRead(byte[] buffer, int offset, int length) throws HttpParseException;
+
+    abstract int doRead(ByteBuffer buffer) throws HttpParseException;
+
     abstract void doRefresh();
 }

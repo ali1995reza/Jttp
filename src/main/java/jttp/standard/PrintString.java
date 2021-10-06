@@ -15,19 +15,16 @@ public class PrintString implements Consumer<ByteBuffer> {
             new PrintString(StandardCharsets.UTF_8);
 
 
-
     private final Charset charset;
 
-    private PrintString(Charset charset)
-    {
+    private PrintString(Charset charset) {
 
         this.charset = charset;
     }
 
 
-
     @Override
     public void accept(ByteBuffer buffer) {
-        System.out.println(new String(buffer.array() , buffer.position() , buffer.remaining() , charset));
+        System.out.println(new String(buffer.array(), buffer.position(), buffer.remaining(), charset));
     }
 }

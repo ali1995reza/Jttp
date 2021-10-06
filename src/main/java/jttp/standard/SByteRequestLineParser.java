@@ -2,7 +2,6 @@ package jttp.standard;
 
 import jttp.api.ByteRequestLineParser;
 import jttp.api.ElementByteParseEventListener;
-import jttp.api.RequestLineParser;
 import jttp.api.exception.HttpParseException;
 
 import java.nio.ByteBuffer;
@@ -13,8 +12,6 @@ public class SByteRequestLineParser extends ExceptionAdaptedElementParser implem
     private final ByteMethodParser methodParser = new ByteMethodParser();
     private final ByteRouteParser routeParser = new ByteRouteParser();
     private final ByteVersionParser versionParser = new ByteVersionParser();
-
-
 
 
     @Override
@@ -46,25 +43,20 @@ public class SByteRequestLineParser extends ExceptionAdaptedElementParser implem
 
         int read = 0;
 
-        while (read<length && !versionParser.isElementParsed())
-        {
-            if(!methodParser.isElementParsed())
-            {
-                read += methodParser.read(buffer , offset+read , length-read);
+        while (read < length && !versionParser.isElementParsed()) {
+            if (!methodParser.isElementParsed()) {
+                read += methodParser.read(buffer, offset + read, length - read);
 
-            }else if(!routeParser.isElementParsed())
-            {
-                read += routeParser.read(buffer , offset+read , length-read);
+            } else if (!routeParser.isElementParsed()) {
+                read += routeParser.read(buffer, offset + read, length - read);
 
-            }else if(!versionParser.isElementParsed())
-            {
-                read += versionParser.read(buffer , offset+read , length-read);
+            } else if (!versionParser.isElementParsed()) {
+                read += versionParser.read(buffer, offset + read, length - read);
 
             }
         }
 
-        if(versionParser.isElementParsed())
-        {
+        if (versionParser.isElementParsed()) {
             setElementParsed();
         }
 

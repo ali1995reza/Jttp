@@ -10,20 +10,19 @@ import static jttp.standard.StaticExceptions.*;
 
 public abstract class SElementReader implements ElementReader {
 
+    protected TolerantConfig tolerant;
     private boolean crDetected = false;
     private boolean elementParsed = false;
     private boolean spaceDetected = false;
     private boolean readAnyOtherBytesExpectCRLF = false;
     private int totalRedundantBytes = 0;
-    protected TolerantConfig tolerant;
     private HttpParseException lastException;
 
     public SElementReader(TolerantConfig tolerant) {
         setTolerant(tolerant);
     }
 
-    public SElementReader()
-    {
+    public SElementReader() {
         this(TolerantConfig.TOLERANT_ENABLE);
     }
 
@@ -33,17 +32,15 @@ public abstract class SElementReader implements ElementReader {
         return this;
     }
 
-    private final void increaseTolerantBytes()throws HttpParseException
-    {
-        if(!tolerant.isEnable() ||
-                ++totalRedundantBytes>tolerant.totalTolerantBytes())
+    private final void increaseTolerantBytes() throws HttpParseException {
+        if (!tolerant.isEnable() ||
+                ++totalRedundantBytes > tolerant.totalTolerantBytes())
             throw MAXIMUM_TOLERANT_BYTES_REACHED;
     }
 
 
-    private final void validate(byte b) throws HttpParseException
-    {
-        if(isCHAR(b))
+    private final void validate(byte b) throws HttpParseException {
+        if (isCHAR(b))
             return;
 
         throw INVALID_CHARACTER;
@@ -64,45 +61,41 @@ public abstract class SElementReader implements ElementReader {
                     crDetected = true;
                 } else if (data == LF) {
                     i++;
-                    if(crDetected || tolerant.isEnable()) {
+                    if (crDetected || tolerant.isEnable()) {
                         onElementParsed(!readAnyOtherBytesExpectCRLF);
                         elementParsed = true;
                         break;
-                    }else {
+                    } else {
                         throw LF_WITHOUT_CR_EXCEPTION;
                     }
 
                 } else {
-                    if(!readAnyOtherBytesExpectCRLF)
+                    if (!readAnyOtherBytesExpectCRLF)
                         readAnyOtherBytesExpectCRLF = true;
-                    if(crDetected)
-                    {
+                    if (crDetected) {
                         throw CR_IN_LINE_EXCEPTION;
                     }
 
-                    if(spaceCharacter(data))
-                    {
+                    if (spaceCharacter(data)) {
 
-                        if(spaceDetected)
+                        if (spaceDetected)
                             increaseTolerantBytes();
                         else {
                             spaceDetected = true;
                             onRead(SP);
                         }
-                    }else {
-                        if(spaceDetected)
+                    } else {
+                        if (spaceDetected)
                             spaceDetected = false;
                         onRead(data);
                     }
                 }
             }
             return i;
-        }catch (HttpParseException e)
-        {
+        } catch (HttpParseException e) {
             lastException = e;
             throw lastException;
-        }catch (Throwable e)
-        {
+        } catch (Throwable e) {
             lastException = new HttpParseException(e);
             throw lastException;
         }
@@ -124,43 +117,40 @@ public abstract class SElementReader implements ElementReader {
                     crDetected = true;
                 } else if (data == LF) {
                     i++;
-                    if(crDetected || tolerant.isEnable()) {
+                    if (crDetected || tolerant.isEnable()) {
                         onElementParsed(!readAnyOtherBytesExpectCRLF);
                         elementParsed = true;
                         break;
-                    }else {
+                    } else {
                         throw LF_WITHOUT_CR_EXCEPTION;
                     }
 
                 } else {
-                    if(!readAnyOtherBytesExpectCRLF)
+                    if (!readAnyOtherBytesExpectCRLF)
                         readAnyOtherBytesExpectCRLF = true;
                     if (crDetected) {
                         throw CR_IN_LINE_EXCEPTION;
                     }
 
-                    if(spaceCharacter(data))
-                    {
-                        if(spaceDetected)
+                    if (spaceCharacter(data)) {
+                        if (spaceDetected)
                             increaseTolerantBytes();
                         else {
                             spaceDetected = true;
                             onRead(SP);
                         }
-                    }else {
-                        if(spaceDetected)
+                    } else {
+                        if (spaceDetected)
                             spaceDetected = false;
                         onRead(data);
                     }
                 }
             }
             return i - offset;
-        }catch (HttpParseException e)
-        {
+        } catch (HttpParseException e) {
             lastException = e;
             throw lastException;
-        }catch (Throwable e)
-        {
+        } catch (Throwable e) {
             lastException = new HttpParseException(e);
             throw lastException;
         }
@@ -181,32 +171,31 @@ public abstract class SElementReader implements ElementReader {
                 if (data == CR) {
                     crDetected = true;
                 } else if (data == LF) {
-                    if(crDetected || tolerant.isEnable()) {
+                    if (crDetected || tolerant.isEnable()) {
                         onElementParsed(!readAnyOtherBytesExpectCRLF);
                         elementParsed = true;
                         break;
-                    }else {
+                    } else {
                         throw LF_WITHOUT_CR_EXCEPTION;
                     }
 
                 } else {
-                    if(!readAnyOtherBytesExpectCRLF)
+                    if (!readAnyOtherBytesExpectCRLF)
                         readAnyOtherBytesExpectCRLF = true;
 
                     if (crDetected) {
                         throw CR_IN_LINE_EXCEPTION;
                     }
 
-                    if(spaceCharacter(data))
-                    {
-                        if(spaceDetected)
+                    if (spaceCharacter(data)) {
+                        if (spaceDetected)
                             increaseTolerantBytes();
                         else {
                             spaceDetected = true;
                             onRead(SP);
                         }
-                    }else {
-                        if(spaceDetected)
+                    } else {
+                        if (spaceDetected)
                             spaceDetected = false;
                         onRead(data);
                     }
@@ -214,20 +203,17 @@ public abstract class SElementReader implements ElementReader {
             }
 
             return i;
-        }catch (HttpParseException e)
-        {
+        } catch (HttpParseException e) {
             lastException = e;
             throw lastException;
-        }catch (Throwable e)
-        {
+        } catch (Throwable e) {
             lastException = new HttpParseException(e);
             throw lastException;
         }
     }
 
-    private final void throwIfHadException() throws HttpParseException
-    {
-        if(lastException!=null)
+    private final void throwIfHadException() throws HttpParseException {
+        if (lastException != null)
             throw lastException;
     }
 
@@ -241,8 +227,7 @@ public abstract class SElementReader implements ElementReader {
         return elementParsed && !readAnyOtherBytesExpectCRLF;
     }
 
-    public SElementReader refresh()
-    {
+    public SElementReader refresh() {
         elementParsed = false;
         crDetected = false;
         spaceDetected = true;
@@ -254,5 +239,6 @@ public abstract class SElementReader implements ElementReader {
     }
 
     abstract void onRead(byte b) throws HttpParseException;
+
     abstract void onElementParsed(boolean isCRLF) throws HttpParseException;
 }

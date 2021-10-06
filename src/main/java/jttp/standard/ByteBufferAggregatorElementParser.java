@@ -24,12 +24,12 @@ public class ByteBufferAggregatorElementParser implements ElementByteParseEventL
     @Override
     public void onElementData(byte[] data, int offset, int len, boolean completed) {
 
-        System.out.println("OFF : "+offset);
-        System.out.println("LEN : "+len);
+        System.out.println("OFF : " + offset);
+        System.out.println("LEN : " + len);
 
-        buffer.put(data , offset , len);
+        buffer.put(data, offset, len);
 
-        if(completed){
+        if (completed) {
             buffer.flip();
             callOnCompleted();
         }
@@ -39,17 +39,16 @@ public class ByteBufferAggregatorElementParser implements ElementByteParseEventL
     public void onElementData(ByteBuffer buffer, boolean completed) {
         buffer.put(buffer);
 
-        if(completed){
+        if (completed) {
             buffer.flip();
             callOnCompleted();
         }
     }
 
-    private void callOnCompleted()
-    {
+    private void callOnCompleted() {
         Consumer<ByteBuffer> listener = onCompleted;
 
-        if(listener==null)
+        if (listener == null)
             return;
 
         listener.accept(buffer);
